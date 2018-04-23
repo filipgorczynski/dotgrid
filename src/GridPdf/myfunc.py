@@ -1,6 +1,6 @@
 from reportlab.lib.pagesizes import *
 from reportlab.lib.colors import *
-from reportlab.lib.units import cm
+from reportlab.lib.units import cm, mm, pica
 
 
 class CanvasSpec:
@@ -18,19 +18,14 @@ class CanvasSpec:
 
 
 def draw(obj, detail_tf, canvas, color, line_width):
-    def xylist(start_point, list, max_, gap, detail_tf):
+    def xylist(start_point, list_, max_, gap, detail_tf):
         i = start_point * cm
         if detail_tf == 1:
             while i < max_ - 5 * gap * cm:
                 for j in range(0, 5):
-                    list.append(i + j * gap * cm)
+                    list_.append(i + j * gap * cm)
                 i += 5 * gap * cm
-            list.append(list[-1] + gap * cm)
-        elif detail_tf == 0:
-            while i < max_ - 5 * gap * cm:
-                list.append(i)
-                i += 5 * gap * cm
-            list.append(list[-1] + 5 * gap * cm)
+            list_.append(list_[-1] + gap * cm)
 
     def align(max_, gap):
         return converter(max_) % 5 * gap / 2
@@ -38,7 +33,13 @@ def draw(obj, detail_tf, canvas, color, line_width):
     def gridB(obj, canvas, color, line_width, xlist, ylist):
         canvas.setStrokeColor(color)
         canvas.setLineWidth(line_width)
-        canvas.grid(xlist, ylist)
+        for y in ylist:
+            for x in xlist:
+                width = x + 0.5
+                height = y + 0.5
+                canvas.ellipse(x, y, width, height, stroke=0, fill=1)
+            canvas.ellipse(x, y, width, height, stroke=0, fill=1)
+
         obj.xStart = xlist[0]
         obj.yStart = ylist[0]
         obj.xlist = []
